@@ -4,30 +4,40 @@ template.className = block
 template.innerHTML = `
 <style>
 .Rolodex {
-        border: 2px solid red;
-        display: inline-block;
+        border: 2px dashed red;
+        border-bottom: 3px solid purple;
+        display: inline-grid;
         margin: 0;
-        position: relative;
+        padding: 2rem;
+        width: max-content;
 }
 
 .Rolodex__item {
-        left: 0;
+        height: 0;
         list-style: none;
         opacity: 0;
-        padding: 2rem;
-        position: absolute;
-        bottom: 0;
+        transform: translateY(-100%);
+        transition-property: height, opacity, transform;
+        transition-delay: 0s;
+        transition-duration: 1s;
+        transition-timing-function: linear;
 }
 
-.Rolodex__item--active {
+.Rolodex__item--below {
+        transform: translateY(100%);
+}
+
+.Rolodex__item--visible {
+        height: inherit;
         opacity: 1;
+        transform: translateY(0)
 }
 </style>
 
 <!-- INSERT HTML HERE -->
 <ul class="Rolodex">
         <!-- Example of final result after render() -->
-        <!-- <li class="Rolodex__item">impact</li> -->
+        <!-- <li class="Rolodex__item Rolodex__item--visible">impact</li> -->
         <!-- <li class="Rolodex__item">damage</li> -->
         <!-- <li class="Rolodex__item">surprise</li> -->
 </ul>
@@ -65,6 +75,7 @@ class Rolodex extends HTMLElement {
         render () {
                 const options = this.options
                 const rolodex = this.hydrateTemplate(template, options)
+                this.calcMaxWidth(options)
 
                 this.shadowRoot.append(rolodex.content.cloneNode(true))
         }
@@ -80,27 +91,46 @@ class Rolodex extends HTMLElement {
         }
 
         beginAnimation() {
-                const animationClass = `${block}__item--active`
-                const rolodex = this.shadowRoot.querySelector(`.${block}`)
-                let activeIndex = 0
-                let maxIndex = this.options.length - 1
-
+                const exitingClass = `${block}__item--below`
+                const nodes = this.shadowRoot.querySelector(`.${block}`).children
+                const visibleClass = `${block}__item--visible`
+                
                 setInterval(() => {
-                        rolodex.querySelectorAll(`.${block}__item`).forEach((item, index) => {
-                                if (activeIndex === index) {
-                                        item.classList.add(animationClass)
-                                        return
-                                }
-                                item.classList.remove(animationClass)
+                        const visibleIndex = Array.from(nodes).findIndex((child) => {
+                                return child.classList.contains(visibleClass)
+                        })
+                        const lastExitedIndex = Array.from(nodes).findIndex((child) => {
+                                return child.classList.contains(exitingClass)
                         })
 
-                        if (activeIndex === maxIndex) {
-                                activeIndex = 0
+                        // On the very first iteration; nodes[0] has visible class (buildListItems)
+                        // Remove it, begin the existing transition
+                        // Start the transition on the next node
+                        if (lastExitedIndex === -1) {
+                                nodes[0].classList.remove(visibleClass)
+                                nodes[0].classList.add(exitingClass)
+
+                                nodes[1].classList.add(visibleClass)
+                                return
                         }
-                        else {
-                                activeIndex++
-                        }
-                }, 1000)
+
+                        console.log(visibleIndex, lastExitedIndex)
+
+                        // Remove exit class from last exited item
+                        nodes[lastExitedIndex].classList.remove(exitingClass)
+                        nodes[lastExitedIndex].classList.remove(visibleClass)
+
+                        // Add exit class to current active item and remove visible class
+                        // nodes[visibleIndex].classList.remove(visibleClass)
+                        nodes[visibleIndex].classList.add(exitingClass)
+
+                        // Add visible class to next item
+                        const nextActiveIndex = visibleIndex === nodes.length - 1
+                                ? 0
+                                : visibleIndex + 1
+
+                        nodes[nextActiveIndex].classList.add(visibleClass)
+                }, 3000)
         }
 
         buildListItems (options) {
@@ -108,14 +138,26 @@ class Rolodex extends HTMLElement {
                         const liItem = document.createElement('li')
 
                         liItem.classList.add(`${block}__item`)
+
+                        // Because of CSS cascading priority, use JS to hide all but the first
+                        // list item, which allows the parent container to calculate width and height
+                        if (index === 0) {
+                                liItem.classList.add(`${block}__item--visible`)
+                        }
+
                         liItem.textContent = option
 
                         return liItem
                 })
         }
 
+        calcMaxWidth (options) {
+                // options.forEach((option) => console.log(option))
+        }
+
         hydrateTemplate (template, options) {
                 const listItems = this.buildListItems(options)
+                this.calcMaxWidth(listItems)
                 const hydratedTemplate = template
 
                 listItems.forEach((item) => {
@@ -129,7 +171,7 @@ class Rolodex extends HTMLElement {
 
         // Fires when an instance was inserted into the document
         connectedCallback () {
-                // this.beginAnimation()
+                this.beginAnimation()
         }
 
         // Fires when an instance was removed from the document
