@@ -5,32 +5,48 @@ template.innerHTML = `
 <style>
 .Rolodex {
         border: 2px dashed red;
-        border-bottom: 3px solid purple;
+        /* border-bottom: 3px solid purple; */
         display: inline-grid;
         margin: 0;
         padding: 2rem;
+        position: relative;
         width: max-content;
 }
 
 .Rolodex__item {
+        border: 1px solid orange;
         height: 0;
         list-style: none;
-        opacity: 0;
-        transform: translateY(-100%);
-        transition-property: height, opacity, transform;
+        /* opacity: 0; */
+        transform: translateY(-5em);
+        transition: height 1s linear 0s;
+        transition-property: transform;
         transition-delay: 0s;
         transition-duration: 1s;
         transition-timing-function: linear;
 }
 
+/* Enable to test the default position of one of the defaultly hidden elements */
+/* .Rolodex__item:nth-child(1) { */
+/*         height: 1; */
+/*         opacity: 1; */
+/*         transform: translateY(-3.5em); */
+/* } */
+.Rolodex__item:nth-child(4) {
+        height: 1;
+        opacity: 1;
+        transform: translateY(2.5em);
+}
+
 .Rolodex__item--below {
-        transform: translateY(100%);
+        transform: translateY(2.5em);
 }
 
 .Rolodex__item--visible {
         height: inherit;
         opacity: 1;
-        transform: translateY(0)
+        transform: translateY(0);
+        z-index: 2;
 }
 </style>
 
@@ -96,40 +112,46 @@ class Rolodex extends HTMLElement {
                 const visibleClass = `${block}__item--visible`
                 
                 setInterval(() => {
-                        const visibleIndex = Array.from(nodes).findIndex((child) => {
+                        const currentVisibleIndex = Array.from(nodes).findIndex((child) => {
                                 return child.classList.contains(visibleClass)
                         })
                         const lastExitedIndex = Array.from(nodes).findIndex((child) => {
                                 return child.classList.contains(exitingClass)
                         })
 
+                        const nextVisibleIndex = currentVisibleIndex === nodes.length - 1
+                                ? 0
+                                : currentVisibleIndex + 1
+                        const nextExitingIndex = currentVisibleIndex
+
                         // On the very first iteration; nodes[0] has visible class (buildListItems)
                         // Remove it, begin the existing transition
                         // Start the transition on the next node
                         if (lastExitedIndex === -1) {
-                                nodes[0].classList.remove(visibleClass)
-                                nodes[0].classList.add(exitingClass)
-
-                                nodes[1].classList.add(visibleClass)
+                                nodes[currentVisibleIndex].classList.remove(visibleClass)
+                                nodes[nextExitingIndex].classList.add(exitingClass)
+                                nodes[nextVisibleIndex].classList.add(visibleClass)
                                 return
                         }
 
-                        console.log(visibleIndex, lastExitedIndex)
+                        // console.dir({
+                        //         currentVisibleIndex,
+                        //         nextVisibleIndex,
+                        //         lastExitedIndex,
+                        //         nextExitingIndex,
+                        // })
 
-                        // Remove exit class from last exited item
+                        // Remove visible from current visible item
+                        nodes[currentVisibleIndex].classList.remove(visibleClass)
+
+                        // Add exiting to next exiting item
+                        nodes[nextExitingIndex].classList.add(exitingClass)
+
+                        // Remove exiting from last exiting item
                         nodes[lastExitedIndex].classList.remove(exitingClass)
-                        nodes[lastExitedIndex].classList.remove(visibleClass)
 
-                        // Add exit class to current active item and remove visible class
-                        // nodes[visibleIndex].classList.remove(visibleClass)
-                        nodes[visibleIndex].classList.add(exitingClass)
-
-                        // Add visible class to next item
-                        const nextActiveIndex = visibleIndex === nodes.length - 1
-                                ? 0
-                                : visibleIndex + 1
-
-                        nodes[nextActiveIndex].classList.add(visibleClass)
+                        // Add visible to the next visible item
+                        nodes[nextVisibleIndex].classList.add(visibleClass)
                 }, 3000)
         }
 
@@ -141,7 +163,8 @@ class Rolodex extends HTMLElement {
 
                         // Because of CSS cascading priority, use JS to hide all but the first
                         // list item, which allows the parent container to calculate width and height
-                        if (index === 0) {
+                        // if (index === 0) {
+                        if (index === 1) {
                                 liItem.classList.add(`${block}__item--visible`)
                         }
 
@@ -171,7 +194,7 @@ class Rolodex extends HTMLElement {
 
         // Fires when an instance was inserted into the document
         connectedCallback () {
-                this.beginAnimation()
+                // this.beginAnimation()
         }
 
         // Fires when an instance was removed from the document
@@ -184,4 +207,4 @@ class Rolodex extends HTMLElement {
         adoptedCallback () {}
 }
 
-window.customElements.define('rolodex-header', Rolodex)
+window.customElements.define('rolodex-animation', Rolodex)
