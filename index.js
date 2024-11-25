@@ -4,39 +4,45 @@ template.className = block
 template.innerHTML = `
 <style>
 .Rolodex {
-        border: 2px dashed red;
-        border-bottom: 3px solid purple;
+        /* border: 2px dashed red; */
+        border-bottom: 3px solid red;
+        box-sizing: border-box;
         display: inline-grid;
         margin: 0;
-        padding: 2rem;
-        width: max-content;
+        padding: 0;
+        position: relative;
 }
 
 .Rolodex__item {
-        height: 0;
+        box-sizing: border-box;
         list-style: none;
+        margin: 0;
         opacity: 0;
-        transform: translateY(-100%);
-        transition-property: height, opacity, transform;
+        padding: 1rem;
+        position: absolute;
+        text-align: center;
+        top: -4em;
+        transition-property: opacity, position, top;
         transition-delay: 0s;
         transition-duration: 1s;
         transition-timing-function: linear;
+        width: inherit;
 }
 
 .Rolodex__item--below {
-        transform: translateY(100%);
+        top: 4em;
 }
 
 .Rolodex__item--visible {
-        height: inherit;
         opacity: 1;
-        transform: translateY(0)
+        position: relative;
+        top: 0;
 }
 </style>
 
 <!-- INSERT HTML HERE -->
 <ul class="Rolodex">
-        <!-- Example of final result after render() -->
+        <!-- Example of inital hydration result after render() -->
         <!-- <li class="Rolodex__item Rolodex__item--visible">impact</li> -->
         <!-- <li class="Rolodex__item">damage</li> -->
         <!-- <li class="Rolodex__item">surprise</li> -->
@@ -48,19 +54,23 @@ template.innerHTML = `
         * hide list elements
         *
         * begin():
-        *
-        * animate first element in from the top
-        * wait n seconds
-        * animate first element out to the bottom
-        * animate second element in from the top
-        * wait n seconds
-        * animate second element out to the bottom
-        * animate third elemenet in from the top
         * 
-        * when at last element:
-        * animate last element out to the bottom
+        * First element is statically rendered in place, which gives the parent container height
+        * (the width comes from updating the list's width after appending to the shadowRoot in render())
         *
-        * begin()
+        * wait n seconds
+        *
+        * Exit first element (visible item)
+        * Enter second element (next visible item)
+        *
+        * wait n seconds
+        *
+        * Exit second element (visible item)
+        * Enter third element (next visible item)
+        *
+        * wait n seconds
+        * 
+        * repeat eventually moving back to the front of the list
 */
 
 class Rolodex extends HTMLElement {
@@ -73,17 +83,18 @@ class Rolodex extends HTMLElement {
         }
 
         render () {
-                const options = this.options
-                const rolodex = this.hydrateTemplate(template, options)
-                this.calcMaxWidth(options)
+                const rolodex = this.hydrateTemplate(template, this.options)
 
                 this.shadowRoot.append(rolodex.content.cloneNode(true))
+
+                // Must wait until the elements are appended to update the width or
+                // the elements won't have values for clientWidth
+                this.updateListWidth(this.shadowRoot.children[1])
         }
 
         get options() {
                 try {
-                        const options = JSON.parse(this.getAttribute('options'))
-                        return options
+                        return JSON.parse(this.getAttribute('options'))
                 }
                 catch (error) {
                         console.log(`${block}: error parsing options attribute`, error)
@@ -91,45 +102,41 @@ class Rolodex extends HTMLElement {
         }
 
         beginAnimation() {
+                const nodes = Array.from(this.shadowRoot.querySelector(`.${block}`).children)
                 const exitingClass = `${block}__item--below`
-                const nodes = this.shadowRoot.querySelector(`.${block}`).children
                 const visibleClass = `${block}__item--visible`
                 
                 setInterval(() => {
-                        const visibleIndex = Array.from(nodes).findIndex((child) => {
-                                return child.classList.contains(visibleClass)
-                        })
-                        const lastExitedIndex = Array.from(nodes).findIndex((child) => {
+                        const exitedItemIndex = nodes.findIndex((child) => {
                                 return child.classList.contains(exitingClass)
                         })
-
-                        // On the very first iteration; nodes[0] has visible class (buildListItems)
-                        // Remove it, begin the existing transition
-                        // Start the transition on the next node
-                        if (lastExitedIndex === -1) {
-                                nodes[0].classList.remove(visibleClass)
-                                nodes[0].classList.add(exitingClass)
-
-                                nodes[1].classList.add(visibleClass)
-                                return
-                        }
-
-                        console.log(visibleIndex, lastExitedIndex)
-
-                        // Remove exit class from last exited item
-                        nodes[lastExitedIndex].classList.remove(exitingClass)
-                        nodes[lastExitedIndex].classList.remove(visibleClass)
-
-                        // Add exit class to current active item and remove visible class
-                        // nodes[visibleIndex].classList.remove(visibleClass)
-                        nodes[visibleIndex].classList.add(exitingClass)
-
-                        // Add visible class to next item
-                        const nextActiveIndex = visibleIndex === nodes.length - 1
+                        const visibleIndex = nodes.findIndex((child) => {
+                                return child.classList.contains(visibleClass)
+                        })
+                        const nextVisibleIndex = visibleIndex === nodes.length - 1
                                 ? 0
                                 : visibleIndex + 1
 
-                        nodes[nextActiveIndex].classList.add(visibleClass)
+                        // On the very first iteration; nodes[nextVisibleIndex] has visible class (buildListItems)
+                        // Remove it since the setInterval has already waited 3s and begin the exiting transition
+                        // Start the transition on the next node
+                        if (exitedItemIndex === -1) {
+                                nodes[visibleIndex].classList.remove(visibleClass)
+                                nodes[visibleIndex].classList.add(exitingClass)
+
+                                nodes[nextVisibleIndex].classList.add(visibleClass)
+                                return
+                        }
+
+                        // Remove exit class from last exited item
+                        nodes[exitedItemIndex].classList.remove(exitingClass)
+
+                        // Add exit class to current active item and remove visible class
+                        nodes[visibleIndex].classList.add(exitingClass)
+                        nodes[visibleIndex].classList.remove(visibleClass)
+
+                        // Add visible class to next item
+                        nodes[nextVisibleIndex].classList.add(visibleClass)
                 }, 3000)
         }
 
@@ -152,19 +159,38 @@ class Rolodex extends HTMLElement {
         }
 
         calcMaxWidth (options) {
-                // options.forEach((option) => console.log(option))
+                if (!options) {
+                        console.log('Rolodex:calcMaxWidth - options is empty')
+                        return
+                }
+
+                let longestOptionWidth = options[0].clientWidth
+
+                options.forEach((option) => {
+                        if (option.clientWidth > longestOptionWidth) {
+                                longestOptionWidth = option.clientWidth
+                        }
+                })
+
+                return longestOptionWidth
         }
 
         hydrateTemplate (template, options) {
-                const listItems = this.buildListItems(options)
-                this.calcMaxWidth(listItems)
                 const hydratedTemplate = template
+                const listItems = this.buildListItems(options)
 
                 listItems.forEach((item) => {
                         hydratedTemplate.content.querySelector(`.${block}`).appendChild(item)
                 })
 
                 return hydratedTemplate
+        }
+
+        updateListWidth (list) {
+                const listItems = list.querySelectorAll(`.${block}__item`)
+                const listWidth = this.calcMaxWidth(listItems)
+
+                list.style.width = `${listWidth}px`
         }
 
         // EVENT CALLBACKS
