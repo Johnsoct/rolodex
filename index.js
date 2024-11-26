@@ -99,23 +99,7 @@ class Rolodex extends HTMLElement {
 
                 // Must wait until the elements are appended to update the width or
                 // the elements won't have values for clientWidth
-                this.updateListWidth(this.shadowRoot.children[1])
-        }
-
-        appendToShadowRoot () {
-                const hydratedTemplate = this.hydrate(template, this.options)
-                const rolodex = this.applyOptions(hydratedTemplate, this.options)
-
-                this.shadowRoot.append(rolodex.content.cloneNode(true))
-        }
-
-        applyOptions (template, options) {
-                const list = template.content.querySelector(`.${block}`)
-
-                list.style.transitionDuration = `${options['transition-duration']}s`
-                list.style.transitionTimingFunction = options['transition-timing-function']
-
-                return template
+                this.updateRolodexWidth(this.shadowRoot.children[1])
         }
 
         animate() {
@@ -153,6 +137,22 @@ class Rolodex extends HTMLElement {
                         // Add visible class to next item
                         nodes[nextVisibleIndex].classList.add(this.classes.visible)
                 }, this.options.interval)
+        }
+
+        appendToShadowRoot () {
+                const hydratedTemplate = this.hydrate(template, this.options)
+                const rolodex = this.applyOptions(hydratedTemplate, this.options)
+
+                this.shadowRoot.append(rolodex.content.cloneNode(true))
+        }
+
+        applyOptions (template, options) {
+                const list = template.content.querySelector(`.${block}`)
+
+                list.style.transitionDuration = `${options['transition-duration']}s`
+                list.style.transitionTimingFunction = options['transition-timing-function']
+
+                return template
         }
 
         buildListItems (options) {
@@ -221,13 +221,6 @@ class Rolodex extends HTMLElement {
                 return options
         }
 
-        updateListWidth (list) {
-                const listItems = list.querySelectorAll(`.${this.classes.default}`)
-                const listWidth = this.calcMaxWidth(listItems)
-
-                list.style.width = `${listWidth}px`
-        }
-
         updateOptions (options, key, value) {
                 const temp = Object.create(options)
 
@@ -246,6 +239,13 @@ class Rolodex extends HTMLElement {
                 }
 
                 return temp
+        }
+
+        updateRolodexWidth (list) {
+                const listItems = list.querySelectorAll(`.${this.classes.default}`)
+                const listWidth = this.calcMaxWidth(listItems)
+
+                list.style.width = `${listWidth}px`
         }
 
         // EVENT CALLBACKS
