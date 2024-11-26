@@ -2,6 +2,7 @@ const block = 'Rolodex'
 const template = document.createElement('template')
 template.className = block
 template.innerHTML = `
+<!-- INSERT CSS HERE -->
 <style>
 .Rolodex {
         --vertical-offset: 3em;
@@ -46,7 +47,7 @@ template.innerHTML = `
 
 <!-- INSERT HTML HERE -->
 <ul class="Rolodex">
-        <!-- Example of inital hydration result after appendToShadowRoot() -->
+        <!-- Example of inital hydration result after render() -->
         <!-- <li class="Rolodex__item Rolodex__item--visible">impact</li> -->
         <!-- <li class="Rolodex__item">damage</li> -->
         <!-- <li class="Rolodex__item">surprise</li> -->
@@ -60,7 +61,7 @@ template.innerHTML = `
         * begin():
         * 
         * First element is statically rendered in place, which gives the parent container height
-        * (the width comes from updating the list's width after appending to the shadowRoot in appendToShadowRoot())
+        * (the width comes from updating the list's width after appending to the shadowRoot in render())
         *
         * wait n seconds
         *
@@ -84,8 +85,8 @@ class Rolodex extends HTMLElement {
                 const shadowRoot = this.attachShadow({ mode: 'open' })
 
                 this.classes = {
-                        exiting: `${block}__item--below`,
                         default: `${block}__item`,
+                        exiting: `${block}__item--below`,
                         visible: `${block}__item--visible`,
                 }
                 this.defaults = {
@@ -99,7 +100,7 @@ class Rolodex extends HTMLElement {
                 this.options = this.parseAttributes()
 
 
-                this.appendToShadowRoot()
+                this.render()
 
                 // Must wait until the elements are appended to update the width or
                 // the elements won't have values for clientWidth
@@ -141,13 +142,6 @@ class Rolodex extends HTMLElement {
                         // Add visible class to next item
                         nodes[nextVisibleIndex].classList.add(this.classes.visible)
                 }, this.options.interval)
-        }
-
-        appendToShadowRoot () {
-                const hydratedTemplate = this.hydrate(template, this.options)
-                const rolodex = this.applyOptions(hydratedTemplate, this.options)
-
-                this.shadowRoot.append(rolodex.content.cloneNode(true))
         }
 
         applyOptions (template, options) {
@@ -223,6 +217,13 @@ class Rolodex extends HTMLElement {
                 this.checkMandatoryOptions(this.mandatoryOptions, options)
 
                 return options
+        }
+
+        render () {
+                const hydratedTemplate = this.hydrate(template, this.options)
+                const rolodex = this.applyOptions(hydratedTemplate, this.options)
+
+                this.shadowRoot.append(rolodex.content.cloneNode(true))
         }
 
         updateOptions (options, key, value) {
