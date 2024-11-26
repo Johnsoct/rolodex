@@ -148,19 +148,19 @@ class Rolodex extends HTMLElement {
                 const listItems = options.options
 
                 return listItems.map((option, index) => {
-                        const liItem = document.createElement('li')
+                        const item = document.createElement('li')
 
-                        liItem.classList.add(`${block}__item`)
+                        item.classList.add(this.classes.default)
 
                         // Because of CSS cascading priority, use CSS to hide all but JS to show the first
                         // list item, which allows the parent container to calculate width
                         if (index === 0) {
-                                liItem.classList.add(this.classes.visible)
+                                item.classList.add(this.classes.visible)
                         }
 
-                        liItem.textContent = option
+                        item.textContent = option
 
-                        return liItem
+                        return item
                 })
         }
 
