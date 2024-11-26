@@ -98,8 +98,7 @@ class Rolodex extends HTMLElement {
                 this.mandatoryOptions = [
                         'options',
                 ]
-                this.options = this.parseAttributes()
-
+                this.options = this.parseAttributes(this.defaults, this.mandatoryOptions, this.attributes)
 
                 this.render()
 
@@ -203,10 +202,10 @@ class Rolodex extends HTMLElement {
                 return hydratedTemplate
         }
 
-        parseAttributes () {
-                const options = this.updateOptions(this.defaults, this.attributes)
+        parseAttributes (defaults, mandatoryOptions, attributes) {
+                const options = this.updateOptions(defaults, attributes)
 
-                this.checkMandatoryOptions(this.mandatoryOptions, options)
+                this.checkMandatoryOptions(mandatoryOptions, options)
 
                 return options
         }
