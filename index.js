@@ -2,9 +2,14 @@ const block = 'Rolodex'
 const template = document.createElement('template')
 template.className = block
 template.innerHTML = `
+<!-- INSERT CSS HERE -->
 <style>
 .Rolodex {
+        --vertical-offset: 3em;
+
+        /* For debugging: */
         /* border: 2px dashed red; */
+
         border-bottom: 3px solid red;
         box-sizing: border-box;
         display: inline-grid;
@@ -21,16 +26,16 @@ template.innerHTML = `
         padding: 1rem;
         position: absolute;
         text-align: center;
-        top: -4em;
+        top: calc(-1 * var(--vertical-offset));
         transition-property: opacity, position, top;
         transition-delay: 0s;
-        transition-duration: 1s;
-        transition-timing-function: linear;
+        transition-duration: 0.5s;
+        transition-timing-function: ease;
         width: inherit;
 }
 
 .Rolodex__item--below {
-        top: 4em;
+        top: var(--vertical-offset);
 }
 
 .Rolodex__item--visible {
@@ -79,39 +84,38 @@ class Rolodex extends HTMLElement {
 
                 const shadowRoot = this.attachShadow({ mode: 'open' })
 
+                this.classes = {
+                        default: `${block}__item`,
+                        exiting: `${block}__item--below`,
+                        visible: `${block}__item--visible`,
+                }
+                this.defaults = {
+                        interval: 3000,
+                        options: [],
+                        'transition-timing-function': 'ease-in',
+                        'transition-duration': 1,
+                }
+                this.mandatoryOptions = [
+                        'options',
+                ]
+                this.options = this.parseAttributes(this.defaults, this.mandatoryOptions, this.attributes)
+
                 this.render()
-        }
-
-        render () {
-                const rolodex = this.hydrateTemplate(template, this.options)
-
-                this.shadowRoot.append(rolodex.content.cloneNode(true))
 
                 // Must wait until the elements are appended to update the width or
                 // the elements won't have values for clientWidth
-                this.updateListWidth(this.shadowRoot.children[1])
+                this.updateRolodexWidth(this.shadowRoot.children[1])
         }
 
-        get options() {
-                try {
-                        return JSON.parse(this.getAttribute('options'))
-                }
-                catch (error) {
-                        console.log(`${block}: error parsing options attribute`, error)
-                }
-        }
-
-        beginAnimation() {
+        animate() {
                 const nodes = Array.from(this.shadowRoot.querySelector(`.${block}`).children)
-                const exitingClass = `${block}__item--below`
-                const visibleClass = `${block}__item--visible`
                 
                 setInterval(() => {
                         const exitedItemIndex = nodes.findIndex((child) => {
-                                return child.classList.contains(exitingClass)
+                                return child.classList.contains(this.classes.exiting)
                         })
                         const visibleIndex = nodes.findIndex((child) => {
-                                return child.classList.contains(visibleClass)
+                                return child.classList.contains(this.classes.visible)
                         })
                         const nextVisibleIndex = visibleIndex === nodes.length - 1
                                 ? 0
@@ -121,49 +125,46 @@ class Rolodex extends HTMLElement {
                         // Remove it since the setInterval has already waited 3s and begin the exiting transition
                         // Start the transition on the next node
                         if (exitedItemIndex === -1) {
-                                nodes[visibleIndex].classList.remove(visibleClass)
-                                nodes[visibleIndex].classList.add(exitingClass)
+                                nodes[visibleIndex].classList.remove(this.classes.visible)
+                                nodes[visibleIndex].classList.add(this.classes.exiting)
 
-                                nodes[nextVisibleIndex].classList.add(visibleClass)
+                                nodes[nextVisibleIndex].classList.add(this.classes.visible)
                                 return
                         }
 
                         // Remove exit class from last exited item
-                        nodes[exitedItemIndex].classList.remove(exitingClass)
+                        nodes[exitedItemIndex].classList.remove(this.classes.exiting)
 
                         // Add exit class to current active item and remove visible class
-                        nodes[visibleIndex].classList.add(exitingClass)
-                        nodes[visibleIndex].classList.remove(visibleClass)
+                        nodes[visibleIndex].classList.add(this.classes.exiting)
+                        nodes[visibleIndex].classList.remove(this.classes.visible)
 
                         // Add visible class to next item
-                        nodes[nextVisibleIndex].classList.add(visibleClass)
-                }, 3000)
+                        nodes[nextVisibleIndex].classList.add(this.classes.visible)
+                }, this.options.interval)
         }
 
         buildListItems (options) {
-                return options.map((option, index) => {
-                        const liItem = document.createElement('li')
+                const listItems = options.options
 
-                        liItem.classList.add(`${block}__item`)
+                return listItems.map((option, index) => {
+                        const item = document.createElement('li')
 
-                        // Because of CSS cascading priority, use JS to hide all but the first
-                        // list item, which allows the parent container to calculate width and height
+                        item.classList.add(this.classes.default)
+
+                        // Because of CSS cascading priority, use CSS to hide all but JS to show the first
+                        // list item, which allows the parent container to calculate width
                         if (index === 0) {
-                                liItem.classList.add(`${block}__item--visible`)
+                                item.classList.add(this.classes.visible)
                         }
 
-                        liItem.textContent = option
+                        item.textContent = option
 
-                        return liItem
+                        return item
                 })
         }
 
         calcMaxWidth (options) {
-                if (!options) {
-                        console.log('Rolodex:calcMaxWidth - options is empty')
-                        return
-                }
-
                 let longestOptionWidth = options[0].clientWidth
 
                 options.forEach((option) => {
@@ -175,19 +176,86 @@ class Rolodex extends HTMLElement {
                 return longestOptionWidth
         }
 
-        hydrateTemplate (template, options) {
+        checkForIncorrectOptions (defaults, key) {
+                if (!Object.hasOwn(defaults, key)) {
+                        console.error(`${block}: attribute ${key} does not correlate to an option`)
+                }
+        }
+
+        checkMandatoryOptions (mandatoryOptions, options) {
+                mandatoryOptions.forEach((option) => {
+                        if (!options[option]) {
+                                console.error(`${block} is missing the mandatory option, ${option}`)
+                        }
+                })
+        }
+
+        hydrate (template, options) {
                 const hydratedTemplate = template
+                const list = hydratedTemplate.content.querySelector(`.${block}`)
                 const listItems = this.buildListItems(options)
 
                 listItems.forEach((item) => {
-                        hydratedTemplate.content.querySelector(`.${block}`).appendChild(item)
+                        list.appendChild(item)
                 })
 
                 return hydratedTemplate
         }
 
-        updateListWidth (list) {
-                const listItems = list.querySelectorAll(`.${block}__item`)
+        parseAttributes (defaults, mandatoryOptions, attributes) {
+                const options = this.updateOptions(defaults, attributes)
+
+                this.checkMandatoryOptions(mandatoryOptions, options)
+
+                return options
+        }
+
+        render () {
+                const hydratedTemplate = this.hydrate(template, this.options)
+                const rolodex = this.updateListStyles(hydratedTemplate, this.options)
+
+                this.shadowRoot.append(rolodex.content.cloneNode(true))
+        }
+
+        updateListStyles (template, options) {
+                const temp = template
+                const list = temp.content.querySelector(`.${block}`)
+
+                list.style.transitionDuration = `${options['transition-duration']}s`
+                list.style.transitionTimingFunction = options['transition-timing-function']
+
+                return temp
+        }
+
+        updateOptions (options, attributes) {
+                const temp = Object.assign(options)
+
+                for (let i = 0; i < attributes.length; i++) {
+                        const key = attributes.item(i).name
+                        const value = attributes.item(i).value
+
+                        this.checkForIncorrectOptions(options, key)
+
+                        try {
+                                // Parse objects into JSON
+                                if (value.includes('[') || value.includes('{')) {
+                                        temp[key] = JSON.parse(value)
+                                }
+                                // Let strings be strings...
+                                else {
+                                        temp[key] = value
+                                }
+                        }
+                        catch (error) {
+                                console.log(`${block}: error parsing ${key} attribute`, error)
+                        }
+                }
+
+                return temp
+        }
+
+        updateRolodexWidth (list) {
+                const listItems = list.querySelectorAll(`.${this.classes.default}`)
                 const listWidth = this.calcMaxWidth(listItems)
 
                 list.style.width = `${listWidth}px`
@@ -197,7 +265,7 @@ class Rolodex extends HTMLElement {
 
         // Fires when an instance was inserted into the document
         connectedCallback () {
-                this.beginAnimation()
+                this.animate()
         }
 
         // Fires when an instance was removed from the document
