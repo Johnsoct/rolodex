@@ -144,17 +144,9 @@ class Rolodex extends HTMLElement {
                 }, this.options.interval)
         }
 
-        applyOptions (template, options) {
-                const list = template.content.querySelector(`.${block}`)
-
-                list.style.transitionDuration = `${options['transition-duration']}s`
-                list.style.transitionTimingFunction = options['transition-timing-function']
-
-                return template
-        }
-
         buildListItems (options) {
                 const listItems = options.options
+
                 return listItems.map((option, index) => {
                         const liItem = document.createElement('li')
 
@@ -221,9 +213,19 @@ class Rolodex extends HTMLElement {
 
         render () {
                 const hydratedTemplate = this.hydrate(template, this.options)
-                const rolodex = this.applyOptions(hydratedTemplate, this.options)
+                const rolodex = this.updateListStyles(hydratedTemplate, this.options)
 
                 this.shadowRoot.append(rolodex.content.cloneNode(true))
+        }
+
+        updateListStyles (template, options) {
+                const temp = template
+                const list = temp.content.querySelector(`.${block}`)
+
+                list.style.transitionDuration = `${options['transition-duration']}s`
+                list.style.transitionTimingFunction = options['transition-timing-function']
+
+                return temp
         }
 
         updateOptions (options, key, value) {
