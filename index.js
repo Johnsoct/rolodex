@@ -109,6 +109,10 @@ class Rolodex extends HTMLElement {
 
         animate() {
                 const nodes = Array.from(this.shadowRoot.querySelector(`.${block}`).children)
+
+                if (!nodes.length) {
+                        return
+                }
                 
                 setInterval(() => {
                         const exitedItemIndex = nodes.findIndex((child) => {
@@ -184,7 +188,7 @@ class Rolodex extends HTMLElement {
 
         checkMandatoryOptions (mandatoryOptions, options) {
                 mandatoryOptions.forEach((option) => {
-                        if (!options[option]) {
+                        if (!options[option].length) {
                                 console.error(`${block} is missing the mandatory option, ${option}`)
                         }
                 })
@@ -256,9 +260,10 @@ class Rolodex extends HTMLElement {
 
         updateRolodexWidth (list) {
                 const listItems = list.querySelectorAll(`.${this.classes.default}`)
-                const listWidth = this.calcMaxWidth(listItems)
 
-                list.style.width = `${listWidth}px`
+                if (listItems.length) {
+                        list.style.width = `${this.calcMaxWidth(listItems)}px`
+                }
         }
 
         // EVENT CALLBACKS
