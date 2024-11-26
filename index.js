@@ -24,7 +24,7 @@ template.innerHTML = `
         top: -3em;
         transition-property: opacity, position, top;
         transition-delay: 0s;
-        transition-duration: 1s;
+        transition-duration: 0.5s;
         /* transition-timing-function: ease; */
         width: inherit;
 }
@@ -79,9 +79,19 @@ class Rolodex extends HTMLElement {
 
                 const shadowRoot = this.attachShadow({ mode: 'open' })
 
-                this.exitingClass = `${block}__item--below`
-                this.itemClass = `${block}__item`
-                this.visibleClass = `${block}__item--visible`
+                this.classes = {
+                        exiting: `${block}__item--below`,
+                        default: `${block}__item`,
+                        visible: `${block}__item--visible`,
+                }
+                this.defaults = {
+                        interval: 3000,
+                        'transition-timing-function': 'ease-in',
+                        'transition-duration': 1,
+                }
+                this.mandatoryOptions = [
+                        'options',
+                ]
                 this.options = this.parseAttributes()
 
 
@@ -101,24 +111,22 @@ class Rolodex extends HTMLElement {
 
         applyOptions (template, options) {
                 const list = template.content.querySelector(`.${block}`)
-                const listItems = template.content.querySelectorAll(`.${this.itemClass}`)
 
-                listItems.forEach((item) => {
-                        item.style.transitionTimingFunction = options['timing-function']
-                })
+                list.style.transitionDuration = `${options['transition-duration']}s`
+                list.style.transitionTimingFunction = options['transition-timing-function']
 
                 return template
         }
 
-        beginAnimation() {
+        animate() {
                 const nodes = Array.from(this.shadowRoot.querySelector(`.${block}`).children)
                 
                 setInterval(() => {
                         const exitedItemIndex = nodes.findIndex((child) => {
-                                return child.classList.contains(this.exitingClass)
+                                return child.classList.contains(this.classes.exiting)
                         })
                         const visibleIndex = nodes.findIndex((child) => {
-                                return child.classList.contains(this.visibleClass)
+                                return child.classList.contains(this.classes.visible)
                         })
                         const nextVisibleIndex = visibleIndex === nodes.length - 1
                                 ? 0
@@ -128,23 +136,23 @@ class Rolodex extends HTMLElement {
                         // Remove it since the setInterval has already waited 3s and begin the exiting transition
                         // Start the transition on the next node
                         if (exitedItemIndex === -1) {
-                                nodes[visibleIndex].classList.remove(this.visibleClass)
-                                nodes[visibleIndex].classList.add(this.exitingClass)
+                                nodes[visibleIndex].classList.remove(this.classes.visible)
+                                nodes[visibleIndex].classList.add(this.classes.exiting)
 
-                                nodes[nextVisibleIndex].classList.add(this.visibleClass)
+                                nodes[nextVisibleIndex].classList.add(this.classes.visible)
                                 return
                         }
 
                         // Remove exit class from last exited item
-                        nodes[exitedItemIndex].classList.remove(this.exitingClass)
+                        nodes[exitedItemIndex].classList.remove(this.classes.exiting)
 
                         // Add exit class to current active item and remove visible class
-                        nodes[visibleIndex].classList.add(this.exitingClass)
-                        nodes[visibleIndex].classList.remove(this.visibleClass)
+                        nodes[visibleIndex].classList.add(this.classes.exiting)
+                        nodes[visibleIndex].classList.remove(this.classes.visible)
 
                         // Add visible class to next item
-                        nodes[nextVisibleIndex].classList.add(this.visibleClass)
-                }, 3000)
+                        nodes[nextVisibleIndex].classList.add(this.classes.visible)
+                }, this.options.interval)
         }
 
         buildListItems (options) {
@@ -154,10 +162,10 @@ class Rolodex extends HTMLElement {
 
                         liItem.classList.add(`${block}__item`)
 
-                        // Because of CSS cascading priority, use JS to hide all but the first
-                        // list item, which allows the parent container to calculate width and height
+                        // Because of CSS cascading priority, use CSS to hide all but JS to show the first
+                        // list item, which allows the parent container to calculate width
                         if (index === 0) {
-                                liItem.classList.add(this.visibleClass)
+                                liItem.classList.add(this.classes.visible)
                         }
 
                         liItem.textContent = option
@@ -167,11 +175,6 @@ class Rolodex extends HTMLElement {
         }
 
         calcMaxWidth (options) {
-                if (!options) {
-                        console.log('Rolodex:calcMaxWidth - options is empty')
-                        return
-                }
-
                 let longestOptionWidth = options[0].clientWidth
 
                 options.forEach((option) => {
@@ -181,6 +184,14 @@ class Rolodex extends HTMLElement {
                 })
 
                 return longestOptionWidth
+        }
+
+        checkMandatoryOptions (mandatoryOptions, options) {
+                mandatoryOptions.forEach((option) => {
+                        if (!options[option]) {
+                                console.error(`${block} is missing the mandatory option, ${option}`)
+                        }
+                })
         }
 
         hydrate (template, options) {
@@ -196,45 +207,52 @@ class Rolodex extends HTMLElement {
 
         parseAttributes () {
                 const attributes = this.attributes
-                const options = this.setOptionsDefaults()
+                let options = this.defaults
 
                 for (let i = 0; i < attributes.length; i++) {
                         const attrName = attributes.item(i).name
                         const attrValue = attributes.item(i).value
 
-                        try {
-                                options[attrName] = JSON.parse(attrValue)
-                        }
-                        catch (error) {
-                                console.log(`${block}: error parsing ${attrName} attribute`, error)
-                        }
+                        options = this.updateOptions(options, attrName, attrValue)
                 }
 
-                if (!options.options) {
-                        console.error('Rolodex was not given any options to render')
-                }
+                this.checkMandatoryOptions(this.mandatoryOptions, options)
 
                 return options
         }
 
-        setOptionsDefaults () {
-                return {
-                        'timing-function': 'ease-in',
-                }
-        }
-
         updateListWidth (list) {
-                const listItems = list.querySelectorAll(`.${this.itemClass}`)
+                const listItems = list.querySelectorAll(`.${this.classes.default}`)
                 const listWidth = this.calcMaxWidth(listItems)
 
                 list.style.width = `${listWidth}px`
+        }
+
+        updateOptions (options, key, value) {
+                const temp = Object.create(options)
+
+                try {
+                        // Parse objects into JSON
+                        if (value.includes('[') || value.includes('{')) {
+                                temp[key] = JSON.parse(value)
+                        }
+                        // Let strings be strings...
+                        else {
+                                temp[key] = value
+                        }
+                }
+                catch (error) {
+                        console.log(`${block}: error parsing ${key} attribute`, error)
+                }
+
+                return temp
         }
 
         // EVENT CALLBACKS
 
         // Fires when an instance was inserted into the document
         connectedCallback () {
-                this.beginAnimation()
+                this.animate()
         }
 
         // Fires when an instance was removed from the document
