@@ -25,7 +25,7 @@ template.innerHTML = `
         transition-property: opacity, position, top;
         transition-delay: 0s;
         transition-duration: 0.5s;
-        /* transition-timing-function: ease; */
+        transition-timing-function: ease;
         width: inherit;
 }
 
