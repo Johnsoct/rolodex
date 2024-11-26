@@ -1,8 +1,8 @@
 {
-  "name": "rolodex",
+  "name": "@johnsoct/rolodex",
   "version": "1.0.0",
-  "description": "CSS header rolodex library",
-  "main": "index.js",
+  "description": "CSS header rolodex",
+  "main": "./dist/rolodex.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -16,5 +16,13 @@
   "license": "ISC",
   "devDependencies": {
     "vite": "^5.4.11"
+  },
+  "repository": "github:johnsoct/rolodex",
+  "private": false,
+  "publishConfig": {
+    "files": [
+      "dist"
+    ],
+    "@johnsoct:registry": "https://npm.pkg.github.com"
   }
 }
