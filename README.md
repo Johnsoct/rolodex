@@ -13,7 +13,12 @@ A web component for animating "power words" in HTML header elements (vue compone
       </h1>
 </body>
 ```
-[comment]: <> (ADD VIDEO OF OUTPUT)
+
+
+
+https://github.com/user-attachments/assets/4417e1b4-f8d4-486d-9c80-ce29d2c4650b
+
+
 
 ## Intentions
 1. Importable into any web project using JavaScript on the client (all of them?), regardless of CSS, SCSS/SASS, Less, etc.
@@ -24,7 +29,11 @@ A web component for animating "power words" in HTML header elements (vue compone
     <h1>Attention <rolodex-animation='["Mac", "Linux"]'></rolodex-animation> users!</h1>
 </body>
 ```
-[comment]: <> (ADD VIDEO OF OUTPUT)
+
+
+Uploading Screen Recording 2024-11-25 at 9.25.22 PM.mov…
+
+
 
 ## Rolodex? What's a rolodex?
 The original contacts app...
