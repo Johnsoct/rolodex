@@ -4,7 +4,11 @@ template.className = block
 template.innerHTML = `
 <style>
 .Rolodex {
+        --vertical-offset: 3em;
+
+        /* For debugging: */
         /* border: 2px dashed red; */
+
         border-bottom: 3px solid red;
         box-sizing: border-box;
         display: inline-grid;
@@ -21,7 +25,7 @@ template.innerHTML = `
         padding: 1rem;
         position: absolute;
         text-align: center;
-        top: -3em;
+        top: calc(-1 * var(--vertical-offset));
         transition-property: opacity, position, top;
         transition-delay: 0s;
         transition-duration: 0.5s;
@@ -30,7 +34,7 @@ template.innerHTML = `
 }
 
 .Rolodex__item--below {
-        top: 3em;
+        top: var(--vertical-offset);
 }
 
 .Rolodex__item--visible {
