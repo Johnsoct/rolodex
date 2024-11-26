@@ -91,6 +91,7 @@ class Rolodex extends HTMLElement {
                 }
                 this.defaults = {
                         interval: 3000,
+                        options: [],
                         'transition-timing-function': 'ease-in',
                         'transition-duration': 1,
                 }
@@ -176,6 +177,12 @@ class Rolodex extends HTMLElement {
                 return longestOptionWidth
         }
 
+        checkForIncorrectOptions (defaults, key) {
+                if (!Object.hasOwn(defaults, key)) {
+                        console.error(`${block}: attribute ${key} does not correlate to an option`)
+                }
+        }
+
         checkMandatoryOptions (mandatoryOptions, options) {
                 mandatoryOptions.forEach((option) => {
                         if (!options[option]) {
@@ -186,25 +193,18 @@ class Rolodex extends HTMLElement {
 
         hydrate (template, options) {
                 const hydratedTemplate = template
+                const list = hydratedTemplate.content.querySelector(`.${block}`)
                 const listItems = this.buildListItems(options)
 
                 listItems.forEach((item) => {
-                        hydratedTemplate.content.querySelector(`.${block}`).appendChild(item)
+                        list.appendChild(item)
                 })
 
                 return hydratedTemplate
         }
 
         parseAttributes () {
-                const attributes = this.attributes
-                let options = this.defaults
-
-                for (let i = 0; i < attributes.length; i++) {
-                        const attrName = attributes.item(i).name
-                        const attrValue = attributes.item(i).value
-
-                        options = this.updateOptions(options, attrName, attrValue)
-                }
+                const options = this.updateOptions(this.defaults, this.attributes)
 
                 this.checkMandatoryOptions(this.mandatoryOptions, options)
 
@@ -228,21 +228,28 @@ class Rolodex extends HTMLElement {
                 return temp
         }
 
-        updateOptions (options, key, value) {
-                const temp = Object.create(options)
+        updateOptions (options, attributes) {
+                const temp = Object.assign(options)
 
-                try {
-                        // Parse objects into JSON
-                        if (value.includes('[') || value.includes('{')) {
-                                temp[key] = JSON.parse(value)
+                for (let i = 0; i < attributes.length; i++) {
+                        const key = attributes.item(i).name
+                        const value = attributes.item(i).value
+
+                        this.checkForIncorrectOptions(options, key)
+
+                        try {
+                                // Parse objects into JSON
+                                if (value.includes('[') || value.includes('{')) {
+                                        temp[key] = JSON.parse(value)
+                                }
+                                // Let strings be strings...
+                                else {
+                                        temp[key] = value
+                                }
                         }
-                        // Let strings be strings...
-                        else {
-                                temp[key] = value
+                        catch (error) {
+                                console.log(`${block}: error parsing ${key} attribute`, error)
                         }
-                }
-                catch (error) {
-                        console.log(`${block}: error parsing ${key} attribute`, error)
                 }
 
                 return temp
