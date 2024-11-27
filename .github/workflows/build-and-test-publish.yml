@@ -61,7 +61,6 @@ jobs:
         runs-on: ubuntu-latest
         permissions:
             contents: read
-            packages: write
             # required for --provenance
             id-token: write
         steps:
@@ -71,10 +70,9 @@ jobs:
               with: 
                   node-version: '20.x'
                   registry-url: 'https://registry.npmjs.org'
-                  scope: '@johnsoct'
             - name: Install dependencies via package-lock.json
               run: npm ci --loglevel verbose
             - name: Test publish to NPM
               run: npm publish --dry-run
               env:
-                  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
