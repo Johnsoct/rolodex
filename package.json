@@ -2,27 +2,27 @@
   "name": "@johnsoct/rolodex",
   "version": "1.0.0",
   "description": "CSS header rolodex",
+  "private": false,
+  "author": "johnsoct",
+  "license": "ISC",
+  "keywords": [
+    "css",
+    "animation"
+  ],
   "main": "./dist/rolodex.js",
+  "repository": "https://github.com/Johnsoct/rolodex.git",
+  "publishConfig": {
+    "files": [
+      "dist/"
+    ],
+    "@Johnsoct:registry": "https://npm.pkg.github.com"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
-  "keywords": [
-    "css",
-    "animation"
-  ],
-  "author": "johnsoct",
-  "license": "ISC",
   "devDependencies": {
     "vite": "^5.4.11"
-  },
-  "repository": "https://github.com/Johnsoct/rolodex.git",
-  "private": false,
-  "publishConfig": {
-    "files": [
-      "dist"
-    ],
-    "@johnsoct:registry": "https://npm.pkg.github.com"
   }
 }
