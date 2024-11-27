@@ -1,6 +1,6 @@
 {
     "name": "@chrisjohnsoct/rolodex",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "description": "CSS header rolodex",
     "private": false,
     "author": "johnsoct",
@@ -10,6 +10,9 @@
         "animation"
     ],
     "main": "index.js",
+    "exports": {
+        ".": "./index.js"
+    },
     "repository": "https://github.com/Johnsoct/rolodex.git",
     "publishConfig": {
         "access": "public",
