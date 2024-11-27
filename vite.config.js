@@ -1,16 +1,19 @@
-import path from 'path'
+import { resolve } from 'path'
 import { defineConfig } from "vite"
 
 export default defineConfig({
         build: {
                 lib: {
-                        entry: 'index.js',
+                        entry: resolve(__dirname, 'index.js'),
                         filename: 'rolodex', // Name of the output
                         name: 'rolodex', // Namespace of exposed global variable
                 },
                 minify: 'esbuild', // default
                 outDir: 'dist', // default
-                rollupOptions: {}, // underlying rollup config options
+                rollupOptions: {
+                        // Externalize unwanteed dependeancies
+                        external: ['vite'],
+                }, // underlying rollup config options
                 target: 'modules', // default
         },
         resolve: {
