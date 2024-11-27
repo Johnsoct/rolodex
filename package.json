@@ -1,6 +1,6 @@
 {
-    "name": "@johnsoct/rolodex",
-    "version": "0.0.6",
+    "name": "@chrisjohnsoct/rolodex",
+    "version": "0.0.8",
     "description": "CSS header rolodex",
     "private": false,
     "author": "johnsoct",
@@ -9,11 +9,11 @@
         "css",
         "animation"
     ],
-    "main": "./dist/rolodex.mjs",
-    "modules": "./dist/rolodex.mjs",
+    "main": "index.js",
     "repository": "https://github.com/Johnsoct/rolodex.git",
     "publishConfig": {
-        "@Johnsoct:registry": "https://npm.pkg.github.com"
+        "access": "public",
+        "@chrisjohnsoct:registry": "https://registry.npmjs.org"
     },
     "scripts": {
         "dev": "vite",
