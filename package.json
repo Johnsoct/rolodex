@@ -10,12 +10,6 @@
     "animation"
   ],
   "main": "./dist/rolodex.js",
-  "publishConfig": {
-    "files": [
-      "dist/"
-    ],
-    "@Johnsoct:registry": "https://npm.pkg.github.com"
-  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
