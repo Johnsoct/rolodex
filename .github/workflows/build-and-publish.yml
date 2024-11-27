@@ -63,6 +63,8 @@ jobs:
         permissions:
             contents: read
             packages: write
+            # required for --provenance
+            id-token: write
         steps:
             - uses: actions/checkout@v4
             # Setup .npmrc to publish to GitHub Packages
