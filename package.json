@@ -17,7 +17,7 @@
   "devDependencies": {
     "vite": "^5.4.11"
   },
-  "repository": "github:johnsoct/rolodex",
+  "repository": "https://github.com/Johnsoct/rolodex",
   "private": false,
   "publishConfig": {
     "files": [
