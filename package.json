@@ -11,12 +11,6 @@
   ],
   "main": "./dist/rolodex.js",
   "repository": "https://github.com/Johnsoct/rolodex.git",
-  "publishConfig": {
-    "files": [
-      "dist/"
-    ],
-    "@Johnsoct:registry": "https://npm.pkg.github.com"
-  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
