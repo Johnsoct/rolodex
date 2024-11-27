@@ -283,4 +283,4 @@ class Rolodex extends HTMLElement {
         adoptedCallback () {}
 }
 
-window.customElements.define('rolodex-header', Rolodex)
+window.customElements.define('rolodex-animation', Rolodex)

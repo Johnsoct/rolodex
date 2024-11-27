@@ -1,12 +1,13 @@
 {
     "name": "@chrisjohnsoct/rolodex",
     "version": "0.0.9",
-    "description": "CSS header rolodex",
+    "description": "Rolodex animation",
     "private": false,
     "author": "johnsoct",
     "license": "ISC",
     "keywords": [
         "css",
+        "js",
         "animation"
     ],
     "main": "index.js",
