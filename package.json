@@ -22,9 +22,14 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "test": "cypress run",
+        "test:ui": "cypress open"
     },
     "devDependencies": {
+        "cypress": "^13.16.0",
+        "cypress-ct-lit": "^1.0.0",
+        "lit": "^3.2.1",
         "vite": "^5.4.11"
     }
 }
