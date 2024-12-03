@@ -4,12 +4,14 @@ import { defineConfig } from "vite"
 
 export default defineConfig({
         build: {
+                // Build only rolodex.ts into ../dist
+                emptyOutDir: true, // Clear ../dist before building
                 lib: {
-                        entry: resolve(__dirname, 'src/index.ts'),
+                        entry: resolve(__dirname, 'src/rolodex.ts'),
                         name: 'rolodex',
                 },
                 minify: 'esbuild', // default
-                outDir: 'dist', // default
+                outDir: '../dist',
                 rollupOptions: {
                         // Externalize unwanteed dependeancies
                         external: [''],

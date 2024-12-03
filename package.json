@@ -10,10 +10,13 @@
         "js",
         "animation"
     ],
-    "main": "./src/index.ts",
+    "main": "./src/rolodex.ts",
     "exports": {
-        ".": "./src/index.js"
+        ".": "./dist/rolodex.js"
     },
+    "files": [
+        "dist"
+    ],
     "repository": "https://github.com/Johnsoct/rolodex.git",
     "publishConfig": {
         "access": "public",
