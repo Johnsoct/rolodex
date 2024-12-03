@@ -10,10 +10,7 @@
         "js",
         "animation"
     ],
-    "main": "./src/rolodex.ts",
-    "exports": {
-        ".": "./dist/rolodex.js"
-    },
+    "main": "./dist/rolodex.umd.js",
     "files": [
         "dist"
     ],
