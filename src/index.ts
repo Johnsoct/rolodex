@@ -78,7 +78,27 @@ template.innerHTML = `
         * repeat eventually moving back to the front of the list
 */
 
-class Rolodex extends HTMLElement {
+type defaultClass = `${typeof block}__item`
+type exitingClass = `${typeof block}__item--below`
+type visibleClass = `${typeof block}__item--visible`
+type mandatoryOptions = "options"
+interface options {
+        interval?: number,
+        options: string[],
+        'transition-timing-function'?: string,
+        'transition-duration'?: number,
+}
+
+class RolodexAnimation extends HTMLElement {
+        classes: {
+                default: defaultClass,
+                exiting: exitingClass,
+                visible: visibleClass,
+        }
+        defaults: options
+        mandatoryOptions: mandatoryOptions[]
+        options: options
+
         constructor () {
                 super()
 
@@ -100,20 +120,22 @@ class Rolodex extends HTMLElement {
                 ]
                 this.options = this.parseAttributes(this.defaults, this.mandatoryOptions, this.attributes)
 
-                this.render()
+                this.render(template)
 
                 // Must wait until the elements are appended to update the width or
                 // the elements won't have values for clientWidth
-                this.updateRolodexWidth(this.shadowRoot.children[1])
+                this.updateRolodexWidth(shadowRoot.children[1] as HTMLUListElement)
         }
 
-        animate() {
-                const nodes = Array.from(this.shadowRoot.querySelector(`.${block}`).children)
+        animation() {
+                const children = this.shadowRoot?.querySelector(`.${block}`)?.children
 
-                if (!nodes.length) {
+                if (children === undefined || !children.length) {
                         return
                 }
-                
+
+                const nodes = Array.from(children)
+
                 setInterval(() => {
                         const exitedItemIndex = nodes.findIndex((child) => {
                                 return child.classList.contains(this.classes.exiting)
@@ -148,7 +170,7 @@ class Rolodex extends HTMLElement {
                 }, this.options.interval)
         }
 
-        buildListItems (options) {
+        buildListItems (options: options): HTMLLIElement[] {
                 const listItems = options.options
 
                 return listItems.map((option, index) => {
@@ -168,7 +190,7 @@ class Rolodex extends HTMLElement {
                 })
         }
 
-        calcMaxWidth (options) {
+        calcMaxWidth (options: Element[]): number {
                 let longestOptionWidth = options[0].clientWidth
 
                 options.forEach((option) => {
@@ -180,13 +202,13 @@ class Rolodex extends HTMLElement {
                 return longestOptionWidth
         }
 
-        checkForIncorrectOptions (defaults, key) {
+        checkForIncorrectOptions (defaults: options, key: string): void {
                 if (!Object.hasOwn(defaults, key)) {
                         console.error(`${block}: attribute ${key} does not correlate to an option`)
                 }
         }
 
-        checkMandatoryOptions (mandatoryOptions, options) {
+        checkMandatoryOptions (mandatoryOptions: mandatoryOptions[], options: options): void {
                 mandatoryOptions.forEach((option) => {
                         if (!options[option].length) {
                                 console.error(`${block} is missing the mandatory option, ${option}`)
@@ -194,9 +216,9 @@ class Rolodex extends HTMLElement {
                 })
         }
 
-        hydrate (template, options) {
+        hydrate (template: HTMLTemplateElement, options: options): HTMLTemplateElement {
                 const hydratedTemplate = template
-                const list = hydratedTemplate.content.querySelector(`.${block}`)
+                const list = hydratedTemplate.content.querySelector(`.${block}`) as HTMLUListElement
                 const listItems = this.buildListItems(options)
 
                 listItems.forEach((item) => {
@@ -206,7 +228,7 @@ class Rolodex extends HTMLElement {
                 return hydratedTemplate
         }
 
-        parseAttributes (defaults, mandatoryOptions, attributes) {
+        parseAttributes (defaults: options, mandatoryOptions: mandatoryOptions[], attributes: NamedNodeMap): options {
                 const options = this.updateOptions(defaults, attributes)
 
                 this.checkMandatoryOptions(mandatoryOptions, options)
@@ -214,29 +236,47 @@ class Rolodex extends HTMLElement {
                 return options
         }
 
-        render () {
+        render (template: HTMLTemplateElement): void {
                 const hydratedTemplate = this.hydrate(template, this.options)
                 const rolodex = this.updateListStyles(hydratedTemplate, this.options)
 
-                this.shadowRoot.append(rolodex.content.cloneNode(true))
+                if (this.shadowRoot) {
+                        this.shadowRoot.append(rolodex.content.cloneNode(true))
+                }
+                else {
+                        console.error('shadowRoot is not defined at time of render()')
+                }
         }
 
-        updateListStyles (template, options) {
+        updateListStyles (template: HTMLTemplateElement, options: options): HTMLTemplateElement {
                 const temp = template
-                const list = temp.content.querySelector(`.${block}`)
+                const list = temp.content.querySelector(`.${block}`) as HTMLUListElement
 
-                list.style.transitionDuration = `${options['transition-duration']}s`
-                list.style.transitionTimingFunction = options['transition-timing-function']
+                if (!list) {
+                        return temp
+                }
+
+                if (options['transition-duration']) {
+                        list.style.transitionDuration = `${options['transition-duration']}s`
+                }
+
+                if (options['transition-timing-function']) {
+                        list.style.transitionTimingFunction = options['transition-timing-function']
+                }
 
                 return temp
         }
 
-        updateOptions (options, attributes) {
+        updateOptions (options: options, attributes: NamedNodeMap): options {
                 const temp = Object.assign(options)
 
+                if (!attributes) {
+                        return options
+                }
+
                 for (let i = 0; i < attributes.length; i++) {
-                        const key = attributes.item(i).name
-                        const value = attributes.item(i).value
+                        const key = attributes[i].name
+                        const value = attributes[i].value
 
                         this.checkForIncorrectOptions(options, key)
 
@@ -258,29 +298,33 @@ class Rolodex extends HTMLElement {
                 return temp
         }
 
-        updateRolodexWidth (list) {
-                const listItems = list.querySelectorAll(`.${this.classes.default}`)
+        updateRolodexWidth (list: HTMLUListElement) {
+                const listItems = Array.from(list.querySelectorAll(`.${this.classes.default}`))
 
                 if (listItems.length) {
-                        list.style.width = `${this.calcMaxWidth(listItems)}px`
+                        const maxWidth = this.calcMaxWidth(listItems)
+                        list.style.width = `${maxWidth}px`
                 }
         }
 
         // EVENT CALLBACKS
 
+
         // Fires when an instance was inserted into the document
         connectedCallback () {
-                this.animate()
+                this.animation()
         }
 
         // Fires when an instance was removed from the document
         disconnectedCallback () {}
 
         // Fires when an attribute was added, removed, or updated
-        attributeChangedCallback (attrName, oldVal, newVal) {}
+        attributeChangedCallback (
+                // attrName, oldVal, newVal
+        ) {}
 
         // Fires when an element is moved to a new document
         adoptedCallback () {}
 }
 
-window.customElements.define('rolodex-animation', Rolodex)
+window.customElements.define('rolodex-animation', RolodexAnimation)
