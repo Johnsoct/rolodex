@@ -11,7 +11,7 @@ export default defineConfig({
                         name: 'rolodex',
                 },
                 minify: 'esbuild', // default
-                outDir: '../dist',
+                outDir: 'dist',
                 rollupOptions: {
                         // Externalize unwanteed dependeancies
                         external: [''],
@@ -25,7 +25,6 @@ export default defineConfig({
                         '@test': resolve(__dirname, './tests'),
                 },
         },
-        root: 'src',
         test: {
                 browser: {
                         enabled: true,
