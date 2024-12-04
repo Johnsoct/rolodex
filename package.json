@@ -10,10 +10,10 @@
         "js",
         "animation"
     ],
-    "main": "index.js",
-    "exports": {
-        ".": "./index.js"
-    },
+    "main": "./dist/rolodex.mjs",
+    "files": [
+        "dist"
+    ],
     "repository": "https://github.com/Johnsoct/rolodex.git",
     "publishConfig": {
         "access": "public",
@@ -22,9 +22,14 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "test": "vitest",
+        "test:coverage": "vitest run --coverage"
     },
     "devDependencies": {
-        "vite": "^5.4.11"
+        "@types/node": "^22.10.1",
+        "typescript": "^5.7.2",
+        "vite": "^5.4.11",
+        "vitest": "^2.1.6"
     }
 }
