@@ -283,7 +283,7 @@ class RolodexAnimation extends HTMLElement {
             try {
                 // Parse objects into JSON
                 if (value.includes('[') || value.includes('{')) {
-                    temp[key] = JSON.parse(value)
+                    temp[key] = JSON.parse(value.replace(/'/g, '"'))
                 }
                 // Let strings be strings...
                 else {
