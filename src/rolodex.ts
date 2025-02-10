@@ -5,52 +5,52 @@ template.innerHTML = `
 <!-- INSERT CSS HERE -->
 <style>
 .Rolodex {
-    --vertical-offset: 3em;
+        --vertical-offset: 3em;
 
-    /* For debugging: */
-    /* border: 2px dashed red; */
+        /* For debugging: */
+        /* border: 2px dashed red; */
 
-    border-bottom: 3px solid red;
-    box-sizing: border-box;
-    display: inline-grid;
-    margin: 0;
-    padding: 0;
-    position: relative;
+        border-bottom: 3px solid red;
+        box-sizing: border-box;
+        display: inline-grid;
+        margin: 0;
+        padding: 0;
+        position: relative;
 }
 
 .Rolodex__item {
-    box-sizing: border-box;
-    list-style: none;
-    margin: 0;
-    opacity: 0;
-    padding: 1rem;
-    position: absolute;
-    text-align: center;
-    top: calc(-1 * var(--vertical-offset));
-    transition-property: opacity, position, top;
-    transition-delay: 0s;
-    transition-duration: 0.5s;
-    transition-timing-function: ease;
-    width: inherit;
+        box-sizing: border-box;
+        list-style: none;
+        margin: 0;
+        opacity: 0;
+        padding: 1rem;
+        position: absolute;
+        text-align: center;
+        top: calc(-1 * var(--vertical-offset));
+        transition-property: opacity, position, top;
+        transition-delay: 0s;
+        transition-duration: 0.5s;
+        transition-timing-function: ease;
+        width: inherit;
 }
 
 .Rolodex__item--below {
-    top: var(--vertical-offset);
+        top: var(--vertical-offset);
 }
 
 .Rolodex__item--visible {
-    opacity: 1;
-    position: relative;
-    top: 0;
+        opacity: 1;
+        position: relative;
+        top: 0;
 }
 </style>
 
 <!-- INSERT HTML HERE -->
 <ul class="Rolodex">
-    <!-- Example of inital hydration result after render() -->
-    <!-- <li class="Rolodex__item Rolodex__item--visible">impact</li> -->
-    <!-- <li class="Rolodex__item">damage</li> -->
-    <!-- <li class="Rolodex__item">surprise</li> -->
+        <!-- Example of inital hydration result after render() -->
+        <!-- <li class="Rolodex__item Rolodex__item--visible">impact</li> -->
+        <!-- <li class="Rolodex__item">damage</li> -->
+        <!-- <li class="Rolodex__item">surprise</li> -->
 </ul>
 `
 
@@ -99,7 +99,7 @@ class RolodexAnimation extends HTMLElement {
     mandatoryOptions: mandatoryOptions[]
     options: options
 
-    constructor () {
+    constructor() {
         super()
 
         const shadowRoot = this.attachShadow({ mode: 'open' })
@@ -170,7 +170,7 @@ class RolodexAnimation extends HTMLElement {
         }, this.options.interval)
     }
 
-    buildListItems (options: options): HTMLLIElement[] {
+    buildListItems(options: options): HTMLLIElement[] {
         const listItems = options.options
 
         return listItems.map((option, index) => {
@@ -190,7 +190,7 @@ class RolodexAnimation extends HTMLElement {
         })
     }
 
-    calcMaxWidth (options: Element[]): number {
+    calcMaxWidth(options: Element[]): number {
         let longestOptionWidth = options[0].clientWidth
 
         options.forEach((option) => {
@@ -202,13 +202,13 @@ class RolodexAnimation extends HTMLElement {
         return longestOptionWidth
     }
 
-    checkForIncorrectOptions (defaults: options, key: string): void {
+    checkForIncorrectOptions(defaults: options, key: string): void {
         if (!Object.hasOwn(defaults, key)) {
             console.error(`${block}: attribute ${key} does not correlate to an option`)
         }
     }
 
-    checkMandatoryOptions (mandatoryOptions: mandatoryOptions[], options: options): void {
+    checkMandatoryOptions(mandatoryOptions: mandatoryOptions[], options: options): void {
         mandatoryOptions.forEach((option) => {
             if (!options[option].length) {
                 console.error(`${block} is missing the mandatory option, ${option}`)
@@ -216,7 +216,7 @@ class RolodexAnimation extends HTMLElement {
         })
     }
 
-    hydrate (template: HTMLTemplateElement, options: options): HTMLTemplateElement {
+    hydrate(template: HTMLTemplateElement, options: options): HTMLTemplateElement {
         const hydratedTemplate = template
         const list = hydratedTemplate.content.querySelector(`.${block}`) as HTMLUListElement
         const listItems = this.buildListItems(options)
@@ -228,7 +228,7 @@ class RolodexAnimation extends HTMLElement {
         return hydratedTemplate
     }
 
-    parseAttributes (defaults: options, mandatoryOptions: mandatoryOptions[], attributes: NamedNodeMap): options {
+    parseAttributes(defaults: options, mandatoryOptions: mandatoryOptions[], attributes: NamedNodeMap): options {
         const options = this.updateOptions(defaults, attributes)
 
         this.checkMandatoryOptions(mandatoryOptions, options)
@@ -236,7 +236,7 @@ class RolodexAnimation extends HTMLElement {
         return options
     }
 
-    render (template: HTMLTemplateElement): void {
+    render(template: HTMLTemplateElement): void {
         const hydratedTemplate = this.hydrate(template, this.options)
         const rolodex = this.updateListStyles(hydratedTemplate, this.options)
 
@@ -248,7 +248,7 @@ class RolodexAnimation extends HTMLElement {
         }
     }
 
-    updateListStyles (template: HTMLTemplateElement, options: options): HTMLTemplateElement {
+    updateListStyles(template: HTMLTemplateElement, options: options): HTMLTemplateElement {
         const temp = template
         const list = temp.content.querySelector(`.${block}`) as HTMLUListElement
 
@@ -267,7 +267,7 @@ class RolodexAnimation extends HTMLElement {
         return temp
     }
 
-    updateOptions (options: options, attributes: NamedNodeMap): options {
+    updateOptions(options: options, attributes: NamedNodeMap): options {
         const temp = Object.assign(options)
 
         if (!attributes) {
@@ -283,7 +283,7 @@ class RolodexAnimation extends HTMLElement {
             try {
                 // Parse objects into JSON
                 if (value.includes('[') || value.includes('{')) {
-                    temp[key] = JSON.parse(value.replace(/'/g, '"'))
+                    temp[key] = JSON.parse(value)
                 }
                 // Let strings be strings...
                 else {
@@ -298,7 +298,7 @@ class RolodexAnimation extends HTMLElement {
         return temp
     }
 
-    updateRolodexWidth (list: HTMLUListElement) {
+    updateRolodexWidth(list: HTMLUListElement) {
         const listItems = Array.from(list.querySelectorAll(`.${this.classes.default}`))
 
         if (listItems.length) {
@@ -311,20 +311,20 @@ class RolodexAnimation extends HTMLElement {
 
 
     // Fires when an instance was inserted into the document
-    connectedCallback () {
+    connectedCallback() {
         this.animation()
     }
 
     // Fires when an instance was removed from the document
-    disconnectedCallback () {}
+    disconnectedCallback() { }
 
     // Fires when an attribute was added, removed, or updated
-    attributeChangedCallback (
+    attributeChangedCallback(
         // attrName, oldVal, newVal
-    ) {}
+    ) { }
 
     // Fires when an element is moved to a new document
-    adoptedCallback () {}
+    adoptedCallback() { }
 }
 
 window.customElements.define('rolodex-animation', RolodexAnimation)
