@@ -1,6 +1,6 @@
-var u = Object.defineProperty;
-var p = (r, l, e) => l in r ? u(r, l, { enumerable: !0, configurable: !0, writable: !0, value: e }) : r[l] = e;
-var c = (r, l, e) => p(r, typeof l != "symbol" ? l + "" : l, e);
+var p = Object.defineProperty;
+var u = (r, l, e) => l in r ? p(r, l, { enumerable: !0, configurable: !0, writable: !0, value: e }) : r[l] = e;
+var c = (r, l, e) => u(r, typeof l != "symbol" ? l + "" : l, e);
 const a = "Rolodex", m = document.createElement("template");
 m.className = a;
 m.innerHTML = `
@@ -137,7 +137,7 @@ class f extends HTMLElement {
       const o = t[s].name, n = t[s].value;
       this.checkForIncorrectOptions(e, o);
       try {
-        n.includes("[") || n.includes("{") ? i[o] = JSON.parse(n) : i[o] = n;
+        n.includes("[") || n.includes("{") ? i[o] = JSON.parse(n.replace(/'/g, '"')) : i[o] = n;
       } catch (d) {
         console.log(`${a}: error parsing ${o} attribute`, d);
       }
