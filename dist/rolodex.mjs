@@ -7,52 +7,52 @@ m.innerHTML = `
 <!-- INSERT CSS HERE -->
 <style>
 .Rolodex {
-    --vertical-offset: 3em;
+        --vertical-offset: 3em;
 
-    /* For debugging: */
-    /* border: 2px dashed red; */
+        /* For debugging: */
+        /* border: 2px dashed red; */
 
-    border-bottom: 3px solid red;
-    box-sizing: border-box;
-    display: inline-grid;
-    margin: 0;
-    padding: 0;
-    position: relative;
+        border-bottom: 3px solid red;
+        box-sizing: border-box;
+        display: inline-grid;
+        margin: 0;
+        padding: 0;
+        position: relative;
 }
 
 .Rolodex__item {
-    box-sizing: border-box;
-    list-style: none;
-    margin: 0;
-    opacity: 0;
-    padding: 1rem;
-    position: absolute;
-    text-align: center;
-    top: calc(-1 * var(--vertical-offset));
-    transition-property: opacity, position, top;
-    transition-delay: 0s;
-    transition-duration: 0.5s;
-    transition-timing-function: ease;
-    width: inherit;
+        box-sizing: border-box;
+        list-style: none;
+        margin: 0;
+        opacity: 0;
+        padding: 1rem;
+        position: absolute;
+        text-align: center;
+        top: calc(-1 * var(--vertical-offset));
+        transition-property: opacity, position, top;
+        transition-delay: 0s;
+        transition-duration: 0.5s;
+        transition-timing-function: ease;
+        width: inherit;
 }
 
 .Rolodex__item--below {
-    top: var(--vertical-offset);
+        top: var(--vertical-offset);
 }
 
 .Rolodex__item--visible {
-    opacity: 1;
-    position: relative;
-    top: 0;
+        opacity: 1;
+        position: relative;
+        top: 0;
 }
 </style>
 
 <!-- INSERT HTML HERE -->
 <ul class="Rolodex">
-    <!-- Example of inital hydration result after render() -->
-    <!-- <li class="Rolodex__item Rolodex__item--visible">impact</li> -->
-    <!-- <li class="Rolodex__item">damage</li> -->
-    <!-- <li class="Rolodex__item">surprise</li> -->
+        <!-- Example of inital hydration result after render() -->
+        <!-- <li class="Rolodex__item Rolodex__item--visible">impact</li> -->
+        <!-- <li class="Rolodex__item">damage</li> -->
+        <!-- <li class="Rolodex__item">surprise</li> -->
 </ul>
 `;
 class f extends HTMLElement {
