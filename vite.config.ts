@@ -10,7 +10,7 @@ export default defineConfig({
                         entry: resolve(__dirname, 'src/rolodex.ts'),
                         name: 'rolodex',
                 },
-                minify: 'esbuild', // default
+                minify: 'esbuild', // default for client builds
                 outDir: 'dist',
                 rollupOptions: {
                         // Externalize unwanteed dependeancies
