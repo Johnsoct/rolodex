@@ -1,5 +1,5 @@
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-        <h1>Can you imagine the <rolodex-animation options='["impact", "damage", "surprise"]' transition-timing-function="step-start"></rolodex-animation>?</h1>
+        <h1>Can you imagine the <rolodex-animation options="['impact', 'damage', 'surprise']" transition-timing-function="step-start"></rolodex-animation>?</h1>
         <!-- <h1> -->
         <!--     Attention -->
         <!--     <rolodex-animation interval="1000" transition-duration="0.5" options='["Mac", "Linux"]' transition-timing-function="ease-in"></rolodex-animation> -->
