@@ -11,10 +11,10 @@
         "animation"
     ],
     "exports": {
-        ".": "./dist/rolodex.mjs"
+        ".": "./dist/lib/rolodex.mjs"
     },
     "files": [
-        "dist"
+        "dist/lib"
     ],
     "repository": "https://github.com/Johnsoct/rolodex.git",
     "publishConfig": {
@@ -22,9 +22,12 @@
         "@chrisjohnsoct:registry": "https://registry.npmjs.org"
     },
     "scripts": {
-        "dev": "vite",
-        "build": "vite build",
-        "preview": "vite preview",
+        "dev:lib": "vite --config vite.config.lib.ts",
+        "dev:site": "vite --config vite.config.site.ts",
+        "build:lib": "vite build --config vite.config.lib.ts",
+        "build:site": "vite build --config vite.config.site.ts",
+        "preview:lib": "vite preview --config vite.config.lib.ts",
+        "preview:site": "vite preview --config vite.config.site.ts",
         "test": "vitest",
         "test:coverage": "vitest run --coverage"
     },

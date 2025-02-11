@@ -3,16 +3,16 @@ import { resolve } from 'path'
 import { defineConfig } from "vite"
 
 export default defineConfig({
-    base: '/rolodex',
+    base: '/',
     build: {
         // Build only rolodex.ts into ../dist
         emptyOutDir: true, // Clear ../dist before building
         lib: {
-            entry: resolve(__dirname, 'src/rolodex.ts'),
+            entry: resolve(__dirname, 'src/lib/rolodex.ts'),
             name: 'rolodex',
         },
         minify: 'esbuild', // default for client builds
-        outDir: 'dist',
+        outDir: 'dist/lib',
         rollupOptions: {
             // Externalize unwanteed dependeancies
             external: [''],
@@ -22,7 +22,7 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': resolve(__dirname, './'),
-            '@src': resolve(__dirname, './src'),
+            '@src': resolve(__dirname, './src/lib'),
             '@test': resolve(__dirname, './tests'),
         },
     },

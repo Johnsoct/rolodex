@@ -5,7 +5,7 @@ on:
 
 jobs:
     build:
-        name: Build dist/
+        name: Build dist/lib/
         runs-on: ubuntu-latest
         permissions:
             contents: read
@@ -25,35 +25,35 @@ jobs:
               id: install
               run: npm ci
 
-            - name: Build dist/ directory
+            - name: Build dist/lib/ directory
               id: build
               run: npm run build
 
-            # This will fail the workflow if the `dist/` directory is different than
+            # This will fail the workflow if the `dist/lib/` directory is different than
             # expected.
             - name: Compare Directories
               id: diff
               run: |
-                if [ ! -d dist/ ]; then
-                    echo "Expected dist/ directory does not exist.  See status below:"
+                if [ ! -d dist/lib/ ]; then
+                    echo "Expected dist/lib/ directory does not exist.  See status below:"
                     ls -la ./
                     exit 1
                 fi
-                if [ "$(git diff --ignore-space-at-eol --text dist/ | wc -l)" -gt "0" ]; then
+                if [ "$(git diff --ignore-space-at-eol --text dist/lib/ | wc -l)" -gt "0" ]; then
                     echo "Detected uncommitted changes after build. See status below:"
-                    git diff --ignore-space-at-eol --text dist/
+                    git diff --ignore-space-at-eol --text dist/lib/
                     exit 1
                 fi
             
-            # If `dist/` was different than expected, upload the expected version as a
+            # If `dist/lib/` was different than expected, upload the expected version as a
             # workflow artifact.
             - if: ${{ failure() && steps.diff.outcome == 'failure' }}
               name: Upload Artifact
               id: upload
               uses: actions/upload-artifact@v4
               with:
-                  name: dist
-                  path: dist/
+                  name: lib
+                  path: dist/lib
 
     publish:
         needs: build
