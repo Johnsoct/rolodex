@@ -27,7 +27,7 @@ jobs:
 
             - name: Build dist/lib/ directory
               id: build
-              run: npm run build
+              run: npm run build:lib
 
             # This will fail the workflow if the `dist/lib/` directory is different than
             # expected.
